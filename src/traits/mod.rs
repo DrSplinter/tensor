@@ -1,5 +1,5 @@
 mod tensor;
 mod tensor_mut;
 
-pub use tensor::Tensor;
-pub use tensor_mut::TensorMut;
+pub use self::tensor::Tensor;
+pub use self::tensor_mut::TensorMut;
