@@ -1,5 +1,9 @@
+use std::ops::Deref;
+
 #[cfg(test)]
 use proptest_derive::Arbitrary;
+
+use crate::Shape;
 
 pub fn index<const D: usize>(index: impl Into<Index<D>>) -> Index<D> {
     index.into()
@@ -53,17 +57,19 @@ impl<const D: usize> PartialOrd for Index<D> {
     }
 }
 
+// TODO: Here is a lot of pub(crate) methods. We need to make this cleaner.
+
 impl<const D: usize> Index<D> {
     pub(crate) fn rank(&self, maximum: &Self) -> usize {
         let Self(a) = self;
         let Self(b) = maximum;
 
-        let b = b.into_iter().scan(1usize, |a, b| {
+        let b = b.iter().scan(1usize, |a, b| {
             let x = *a;
             *a *= b;
             Some(x)
         });
-        a.into_iter().zip(b).map(|(a, b)| *a * b).sum()
+        a.iter().zip(b).map(|(a, b)| *a * b).sum()
     }
 
     pub(crate) fn lower_bound_size(&self) -> usize {
@@ -71,7 +77,7 @@ impl<const D: usize> Index<D> {
         let x = *a;
         let mut s = [0usize; D];
         s[D - 1] = x[D - 1];
-        index(s).rank(&self)
+        index(s).rank(self)
     }
 
     pub(crate) fn from_rank(rank: usize, maximum: &Self) -> Self {
@@ -79,7 +85,7 @@ impl<const D: usize> Index<D> {
         let mut out = [0usize; D];
 
         let sizes = m
-            .into_iter()
+            .iter()
             .scan(1usize, |a, b| {
                 let x = *a;
                 *a *= b;
@@ -100,6 +106,36 @@ impl<const D: usize> Index<D> {
 
     pub(crate) fn bounded_by(&self, bound: &Self) -> bool {
         self.0.into_iter().zip(bound.0).all(|(a, b)| a < b)
+    }
+
+    pub(crate) fn indices(&self) -> [usize; D] {
+        self.0
+    }
+
+    pub(crate) fn reorder(&self, order: &[usize; D]) -> Index<D> {
+        let old_sizes = self.indices();
+        let mut new_sizes = [0; D];
+        // TODO: do we need to check this every time?
+        // assert!(order.into_iter().max().unwrap() < D);
+
+        order
+            .iter()
+            .enumerate()
+            .for_each(|(old, new)| new_sizes[*new] = old_sizes[old]);
+        new_sizes.into()
+    }
+
+    pub(crate) fn modulo(&self, shape: Shape<D>) -> Index<D> {
+        let value = self.indices();
+        let modulus = shape.sizes();
+        let mut modulo = [0; D];
+
+        modulo
+            .iter_mut()
+            .zip(value)
+            .zip(modulus)
+            .for_each(|(((r, v), m))| *r = v % m);
+        modulo.into()
     }
 }
 
@@ -127,6 +163,8 @@ impl Index<3> {
 #[cfg(test)]
 mod tests {
     use std::cmp::Ordering;
+
+    use crate::shape::{self, shape};
 
     use super::*;
     use proptest::{prelude::*, proptest};
@@ -276,5 +314,14 @@ mod tests {
                 index([1usize, 2])
             ]
         );
+    }
+
+    #[test]
+    fn modulo_works() {
+        let whole = shape([3usize, 4]);
+        let modulus = shape([3usize, 2]);
+        let idx = index([2usize, 2]);
+
+        assert_eq!(idx.modulo(modulus), index([2usize, 0]));
     }
 }

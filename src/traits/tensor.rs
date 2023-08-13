@@ -1,4 +1,4 @@
-use crate::{empty, Index, Map, Shape, TensorMut, Vector, Zip};
+use crate::{empty, Index, Map, Reorder, Shape, TensorMut, Tile, Vector, Zip};
 
 pub trait Tensor<const D: usize> {
     type Item;
@@ -20,6 +20,20 @@ pub trait Tensor<const D: usize> {
         Self: Sized,
     {
         Zip::new(self, other)
+    }
+
+    fn reorder(self, order: [usize; D]) -> Reorder<Self, D>
+    where
+        Self: Sized,
+    {
+        Reorder::new(self, order)
+    }
+
+    fn tile(self, shape: impl Into<Shape<D>>) -> Tile<Self, D>
+    where
+        Self: Sized,
+    {
+        Tile::new(self, shape.into())
     }
 
     fn collect(self) -> Vector<Self::Item, D>

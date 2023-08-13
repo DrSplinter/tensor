@@ -42,9 +42,8 @@ impl<T: Copy, const D: usize> Tensor<D> for Vector<T, D> {
 }
 
 impl<T: Copy, const D: usize> TensorMut<D> for Vector<T, D> {
-    fn set(&mut self, index: Index<D>, value: Self::Item) -> &mut Self {
+    fn get_mut(&mut self, index: Index<D>) -> &mut Self::Item {
         let Self { data, supremum } = self;
-        data[index.rank(&supremum)] = value;
-        self
+        &mut data[index.rank(supremum)]
     }
 }
