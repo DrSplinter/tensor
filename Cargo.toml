@@ -8,3 +8,6 @@ edition = "2021"
 [dev-dependencies]
 proptest = "1.2.0"
 proptest-derive = "0.3.0"
+
+[dependencies]
+rayon = "1.7.0"

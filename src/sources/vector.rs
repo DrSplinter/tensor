@@ -1,4 +1,5 @@
-use crate::{index::Index, shape::Shape, traits::TensorMut, Tensor};
+use crate::{Index, Shape, Tensor, TensorMut};
+use rayon::prelude::*;
 
 pub fn vector<T, const D: usize>(
     data: impl IntoIterator<Item = T>,
@@ -26,6 +27,25 @@ impl<T, const D: usize> Vector<T, D> {
         let supremum = shape.0;
         Self { data, supremum }
     }
+
+    fn par_update<A, F>(&mut self, f: F, other: &A) -> &mut Self
+    where
+        A: Tensor<D> + Sync,
+        F: Fn(&mut T, A::Item) + Sync,
+        T: Copy + Sync + Send,
+    {
+        let shape = self.shape();
+        if shape != other.shape() {
+            //TODO: return result?
+            panic!("incompatible shapes")
+        }
+        self.data
+            .as_mut_slice()
+            .into_par_iter()
+            .enumerate()
+            .for_each(|(rank, old)| f(old, other.get(Index::from_rank(rank, &shape.0))));
+        self
+    }
 }
 
 impl<T: Copy, const D: usize> Tensor<D> for Vector<T, D> {
@@ -33,7 +53,7 @@ impl<T: Copy, const D: usize> Tensor<D> for Vector<T, D> {
 
     fn get(&self, index: Index<D>) -> Self::Item {
         let Self { data, supremum } = self;
-        data[index.rank(&supremum)]
+        data[index.rank(supremum)]
     }
 
     fn shape(&self) -> Shape<D> {

@@ -1,4 +1,4 @@
-use crate::{index::Index, Tensor};
+use crate::{Index, Tensor};
 
 pub trait TensorMut<const D: usize>: Tensor<D> {
     fn get_mut(&mut self, index: Index<D>) -> &mut Self::Item;
@@ -12,6 +12,10 @@ pub trait TensorMut<const D: usize>: Tensor<D> {
         T: Tensor<D>,
         F: Fn(&mut Self::Item, T::Item),
     {
+        if self.shape() != other.shape() {
+            //TODO: return result?
+            panic!("incompatible shapes")
+        }
         self.shape().iter().for_each(|i| {
             f(self.get_mut(i), other.get(i));
         });

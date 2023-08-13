@@ -58,3 +58,13 @@ fn tile_test() {
 
     assert_eq!(b.collect(), c)
 }
+
+#[test]
+fn filter_test() {
+    let a = vector(0..12, [2, 6]);
+    let f = vector([false, true, false, true, true, false], [6]);
+    let b = a.filter(f, 1);
+    let c = vector([2, 3, 6, 7, 8, 9], [2, 3]);
+
+    assert_eq!(b.collect(), c);
+}

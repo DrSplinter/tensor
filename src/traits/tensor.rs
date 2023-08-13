@@ -1,4 +1,4 @@
-use crate::{empty, Index, Map, Reorder, Shape, TensorMut, Tile, Vector, Zip};
+use crate::{empty, Filter, Index, Map, Reorder, Shape, TensorMut, Tile, Vector, Zip};
 
 pub trait Tensor<const D: usize> {
     type Item;
@@ -34,6 +34,14 @@ pub trait Tensor<const D: usize> {
         Self: Sized,
     {
         Tile::new(self, shape.into())
+    }
+
+    fn filter<F>(self, filter: F, dim: usize) -> Filter<Self, D>
+    where
+        Self: Sized,
+        F: Tensor<1, Item = bool>,
+    {
+        Filter::new(self, filter, dim)
     }
 
     fn collect(self) -> Vector<Self::Item, D>
