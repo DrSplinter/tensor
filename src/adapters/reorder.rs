@@ -21,9 +21,9 @@ where
 {
     type Item = A::Item;
 
-    fn get(&self, index: Index<D>) -> Self::Item {
+    fn get(&self, index: impl Into<Index<D>>) -> Self::Item {
         let Self { order, a } = self;
-        a.get(index.reorder(order))
+        a.get(index.into().reorder(order))
     }
 
     fn shape(&self) -> Shape<D> {

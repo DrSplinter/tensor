@@ -1,9 +1,9 @@
 use crate::{Index, Tensor};
 
 pub trait TensorMut<const D: usize>: Tensor<D> {
-    fn get_mut(&mut self, index: Index<D>) -> &mut Self::Item;
+    fn get_mut(&mut self, index: impl Into<Index<D>>) -> &mut Self::Item;
 
-    fn set(&mut self, index: Index<D>, value: Self::Item) {
+    fn set(&mut self, index: impl Into<Index<D>>, value: Self::Item) {
         *self.get_mut(index) = value;
     }
 

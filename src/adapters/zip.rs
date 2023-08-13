@@ -23,7 +23,8 @@ where
 {
     type Item = (A::Item, B::Item);
 
-    fn get(&self, index: Index<D>) -> Self::Item {
+    fn get(&self, index: impl Into<Index<D>>) -> Self::Item {
+        let index = index.into();
         (self.a.get(index), self.b.get(index))
     }
 

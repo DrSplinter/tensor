@@ -9,21 +9,19 @@ pub fn shape<const D: usize>(shape: impl Into<Shape<D>>) -> Shape<D> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Shape<const D: usize>(pub(crate) Index<D>);
 
-impl<const D: usize> From<[usize; D]> for Shape<D> {
-    fn from(value: [usize; D]) -> Self {
+impl<T: Into<Index<D>>, const D: usize> From<T> for Shape<D> {
+    fn from(value: T) -> Self {
         Shape(value.into())
-    }
-}
-
-impl<const D: usize> From<Index<D>> for Shape<D> {
-    fn from(value: Index<D>) -> Self {
-        Shape(value)
     }
 }
 
 impl<const D: usize> Shape<D> {
     pub fn sizes(&self) -> [usize; D] {
         self.0.indices()
+    }
+
+    pub fn total_size(&self) -> usize {
+        self.sizes().into_iter().product()
     }
 
     pub fn iter<'a>(&'a self) -> impl Iterator<Item = Index<D>> + 'a {

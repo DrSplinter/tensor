@@ -9,7 +9,7 @@ pub fn index<const D: usize>(index: impl Into<Index<D>>) -> Index<D> {
     index.into()
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(test, derive(Arbitrary))]
 pub struct Index<const D: usize>([usize; D]);
 
@@ -37,6 +37,18 @@ impl<const D: usize> From<[u8; D]> for Index<D> {
     }
 }
 
+impl<const D: usize> From<[u16; D]> for Index<D> {
+    fn from(value: [u16; D]) -> Self {
+        let mut arr = [0usize; D];
+
+        arr.iter_mut().zip(value).for_each(|(a, b)| {
+            *a = b.into();
+        });
+
+        arr.into()
+    }
+}
+
 impl<const D: usize> PartialOrd for Index<D> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         use std::cmp::Ordering::*;
@@ -54,6 +66,12 @@ impl<const D: usize> PartialOrd for Index<D> {
             }
         }
         Some(Equal)
+    }
+}
+
+impl<const D: usize> Ord for Index<D> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
 

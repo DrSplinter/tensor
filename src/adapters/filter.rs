@@ -49,13 +49,13 @@ where
 {
     type Item = A::Item;
 
-    fn get(&self, index: Index<D>) -> Self::Item {
+    fn get(&self, index: impl Into<Index<D>>) -> Self::Item {
         let Filter { a, d, is } = self;
 
-        let mut indices = index.indices();
+        let mut indices = index.into().indices();
         indices[*d] = is[indices[*d]];
 
-        a.get(indices.into())
+        a.get(indices)
     }
 
     fn shape(&self) -> Shape<D> {

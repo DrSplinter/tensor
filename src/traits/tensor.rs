@@ -3,7 +3,7 @@ use crate::{empty, Filter, Index, Map, Reorder, Shape, TensorMut, Tile, Vector, 
 pub trait Tensor<const D: usize> {
     type Item;
 
-    fn get(&self, index: Index<D>) -> Self::Item;
+    fn get(&self, index: impl Into<Index<D>>) -> Self::Item;
     fn shape(&self) -> Shape<D>;
 
     fn map<F, MI>(self, f: F) -> Map<F, Self, D>

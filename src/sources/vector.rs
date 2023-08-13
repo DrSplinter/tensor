@@ -28,7 +28,7 @@ impl<T, const D: usize> Vector<T, D> {
         Self { data, supremum }
     }
 
-    fn par_update<A, F>(&mut self, f: F, other: &A) -> &mut Self
+    pub fn par_update<A, F>(&mut self, f: F, other: &A) -> &mut Self
     where
         A: Tensor<D> + Sync,
         F: Fn(&mut T, A::Item) + Sync,
@@ -46,14 +46,22 @@ impl<T, const D: usize> Vector<T, D> {
             .for_each(|(rank, old)| f(old, other.get(Index::from_rank(rank, &shape.0))));
         self
     }
+
+    pub fn clear(&mut self) {
+        self.data.clear()
+    }
+
+    pub fn into_inner(self) -> Vec<T> {
+        self.data
+    }
 }
 
 impl<T: Copy, const D: usize> Tensor<D> for Vector<T, D> {
     type Item = T;
 
-    fn get(&self, index: Index<D>) -> Self::Item {
+    fn get(&self, index: impl Into<Index<D>>) -> Self::Item {
         let Self { data, supremum } = self;
-        data[index.rank(supremum)]
+        data[index.into().rank(supremum)]
     }
 
     fn shape(&self) -> Shape<D> {
@@ -62,8 +70,8 @@ impl<T: Copy, const D: usize> Tensor<D> for Vector<T, D> {
 }
 
 impl<T: Copy, const D: usize> TensorMut<D> for Vector<T, D> {
-    fn get_mut(&mut self, index: Index<D>) -> &mut Self::Item {
+    fn get_mut(&mut self, index: impl Into<Index<D>>) -> &mut Self::Item {
         let Self { data, supremum } = self;
-        &mut data[index.rank(supremum)]
+        &mut data[index.into().rank(supremum)]
     }
 }

@@ -27,9 +27,9 @@ where
 {
     type Item = T;
 
-    fn get(&self, index: Index<D>) -> Self::Item {
+    fn get(&self, index: impl Into<Index<D>>) -> Self::Item {
         let Self { map, shape } = self;
-        map.get(&index).map(|a| *a).unwrap_or_default()
+        map.get(&index.into()).map(|a| *a).unwrap_or_default()
     }
 
     fn shape(&self) -> Shape<D> {
