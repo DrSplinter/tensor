@@ -37,7 +37,7 @@ impl<T, const D: usize> Vector<T, D> {
         let shape = self.shape();
         if shape != other.shape() {
             //TODO: return result?
-            panic!("incompatible shapes")
+            panic!("incompatible shapes {:?} != {:?}", shape, other.shape());
         }
         self.data
             .as_mut_slice()
