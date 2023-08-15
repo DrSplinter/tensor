@@ -51,6 +51,14 @@ fn reorder_test() {
 }
 
 #[test]
+fn reorder_shape_test() {
+    let a = vector(0..24, [3usize, 2, 4]);
+    let b = a.reorder([1, 0, 2]);
+
+    assert_eq!(b.shape(), shape([2usize, 3, 4]));
+}
+
+#[test]
 fn tile_test() {
     let a = vector(0..6, [3usize, 2]);
     let b = a.tile(shape([3usize, 4]));

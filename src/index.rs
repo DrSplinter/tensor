@@ -139,7 +139,8 @@ impl<const D: usize> Index<D> {
         order
             .iter()
             .enumerate()
-            .for_each(|(old, new)| new_sizes[*new] = old_sizes[old]);
+            .for_each(|(old, new)| new_sizes[old] = old_sizes[*new]);
+
         new_sizes.into()
     }
 
